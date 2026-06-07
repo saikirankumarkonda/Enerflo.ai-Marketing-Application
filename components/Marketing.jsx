@@ -112,7 +112,7 @@ const pricingPlans = [
     features: [
       'Customer CRM',
       'Sites & Meter Records',
-      'Basic Document Uploads',
+      'Document Uploads',
       'Personal Dashboard',
       'Basic Admin Settings',
       'Email Support'
@@ -131,8 +131,6 @@ const pricingPlans = [
       'Everything in Starter',
       'Contracts & Renewal Pipeline',
       'Quotes Comparison & Proposals',
-      'Quote PDF with Branding',
-      'Advanced Document Uploads & Storage',
       'Tasks & Follow-ups',
       'Commission Tracking (Basic)',
       'CSV Import & Export',
@@ -150,7 +148,6 @@ const pricingPlans = [
     href: '/book-demo',
     features: [
       'Everything in Growth',
-      'Custom Workflows & Automations',
       'Advanced User Management',
       'Supplier & Tariff Import',
       'Advanced Reporting & KPIs',
@@ -918,42 +915,59 @@ function DemoForm() {
     users: '',
     challenge: ''
   });
-  const [submitted, setSubmitted] = useState(false);
+  const [company, setCompany] = useState(''); // honeypot, never shown to humans
+  const [status, setStatus] = useState('idle'); // 'idle' | 'submitting' | 'success' | 'error'
+  const [errorMessage, setErrorMessage] = useState('');
 
   const update = (field) => (event) =>
     setValues((prev) => ({ ...prev, [field]: event.target.value }));
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    const subject = `Demo request from ${values.name || 'a prospect'} (${values.business || 'unknown brokerage'})`;
-    const bodyLines = [
-      `Name: ${values.name}`,
-      `Brokerage: ${values.business}`,
-      `Email: ${values.email}`,
-      `Team size: ${values.users}`,
-      `Main challenge: ${values.challenge}`
-    ];
-    const mailto = `mailto:hello@enerflo-ai.co.uk?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyLines.join('\n'))}`;
-    if (typeof window !== 'undefined') {
-      window.location.href = mailto;
+    if (status === 'submitting') return;
+
+    setStatus('submitting');
+    setErrorMessage('');
+
+    try {
+      const response = await fetch('/api/book-demo', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ ...values, company })
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok || !data.ok) {
+        setErrorMessage(data.error || 'Something went wrong. Please try again.');
+        setStatus('error');
+        return;
+      }
+
+      setStatus('success');
+    } catch {
+      setErrorMessage('Network error. Please check your connection and try again.');
+      setStatus('error');
     }
-    setSubmitted(true);
   };
 
   const reset = () => {
     setValues({ name: '', business: '', email: '', users: '', challenge: '' });
-    setSubmitted(false);
+    setCompany('');
+    setErrorMessage('');
+    setStatus('idle');
   };
 
-  if (submitted) {
+  if (status === 'success') {
     return (
       <div className="demo-form demo-success" role="status" aria-live="polite">
         <CheckCircle2 size={48} />
         <h2>Thanks, {values.name.split(' ')[0] || 'we got it'}!</h2>
         <p>
-          Your demo request has been queued. If your email client did not open,
-          please email us directly at <strong>hello@enerflo-ai.co.uk</strong> and
-          we will be in touch within one business day.
+          Your demo request is in. We have emailed you a confirmation at{' '}
+          <strong>{values.email}</strong> and a member of the team will be in
+          touch within one business day. If you do not see the confirmation,
+          please check your spam folder.
         </p>
         <button type="button" className="btn btn-outline full" onClick={reset}>
           Send another request
@@ -961,6 +975,8 @@ function DemoForm() {
       </div>
     );
   }
+
+  const isSubmitting = status === 'submitting';
 
   return (
     <form
@@ -970,6 +986,21 @@ function DemoForm() {
       noValidate
     >
       <h2 id="demo-form-heading" className="demo-form-heading">Request your demo</h2>
+      {/* Honeypot: hidden from real users, bots tend to fill it in. */}
+      <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, overflow: 'hidden' }}>
+        <label htmlFor="demo-company">
+          Company (leave blank)
+          <input
+            id="demo-company"
+            name="company"
+            type="text"
+            tabIndex={-1}
+            autoComplete="off"
+            value={company}
+            onChange={(event) => setCompany(event.target.value)}
+          />
+        </label>
+      </div>
       <label htmlFor="demo-name">
         Name
         <input
@@ -1042,7 +1073,19 @@ function DemoForm() {
           <option>Spreadsheets</option>
         </select>
       </label>
-      <button className="btn btn-primary full" type="submit">Submit Request</button>
+      {status === 'error' && errorMessage && (
+        <p className="form-note" role="alert" style={{ color: '#b91c1c' }}>
+          {errorMessage}
+        </p>
+      )}
+      <button
+        className="btn btn-primary full"
+        type="submit"
+        disabled={isSubmitting}
+        aria-busy={isSubmitting}
+      >
+        {isSubmitting ? 'Sending…' : 'Submit Request'}
+      </button>
       <p className="form-note">
         We will only use these details to contact you about your demo.
       </p>

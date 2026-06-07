@@ -12,7 +12,8 @@
     "lucide-react": "latest",
     "next": "latest",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "resend": "^4.0.0"
   },
   "devDependencies": {
     "eslint": "latest",
