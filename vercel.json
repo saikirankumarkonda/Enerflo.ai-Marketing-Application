@@ -3,12 +3,6 @@
   "outputDirectory": ".next",
   "devCommand": "next dev",
   "installCommand": "npm ci",
-  "env": [
-    "RESEND_API_KEY",
-    "DEMO_FROM",
-    "DEMO_NOTIFY_TO",
-    "DEMO_REPLY_TO"
-  ],
   "headers": [
     {
       "source": "/api/:path*",
