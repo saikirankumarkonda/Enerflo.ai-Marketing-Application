@@ -1,5 +1,6 @@
 import './globals.css';
 import { Poppins, Caveat } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/next';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -126,6 +127,7 @@ export default function RootLayout({ children }) {
     <html lang="en-GB" className={`${poppins.variable} ${caveat.variable}`}>
       <body>
         {children}
+        <Analytics />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
