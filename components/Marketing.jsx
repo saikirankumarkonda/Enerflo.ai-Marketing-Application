@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -333,7 +333,7 @@ function Logo({ footer = false }) {
     ? 'brand-logo brand-logo--small brand-logo--footer'
     : 'brand-logo brand-logo--small';
   return (
-    <Link className={className} href="/" aria-label="enerflo.ai home">
+    <Link className={className} href="/" aria-label="enerflo.ai home" onClick={() => window.dispatchEvent(new Event('enerflo:go-home'))}>
       <span className="brand-mark" aria-hidden="true">
         <Image
           src="/enerflo-ai-icon.png"
@@ -402,41 +402,83 @@ function Header() {
 }
 
 function VideoCard() {
+  const pathname = usePathname();
+  const [showVideo, setShowVideo] = useState(false);
+
+  // Reset video when user navigates or clicks logo
+  React.useEffect(() => {
+    setShowVideo(false);
+  }, [pathname]);
+
+  React.useEffect(() => {
+    const reset = () => setShowVideo(false);
+    window.addEventListener('enerflo:go-home', reset);
+    return () => window.removeEventListener('enerflo:go-home', reset);
+  }, []);
+
   return (
     <div className="hero-video-wrap">
-      <div className="sticky-note note-one">
-        <span>Smarter<br />Workflows</span>
-        <Check size={18} />
-      </div>
-      <div className="sticky-note note-two">
-        <span>Never Miss<br />a Renewal</span>
-        <CalendarCheck size={18} />
-      </div>
-      <div className="sticky-note note-three">
-        <span>Better<br />Decisions</span>
-        <BarChart3 size={18} />
-      </div>
-      <div className="sticky-note note-four">
-        <span>More<br />Commissions</span>
-        <Sparkles size={18} />
-      </div>
+      {!showVideo && (
+        <>
+          <div className="sticky-note note-one">
+            <span>Smarter<br />Workflows</span>
+            <Check size={18} />
+          </div>
+          <div className="sticky-note note-two">
+            <span>Never Miss<br />a Renewal</span>
+            <CalendarCheck size={18} />
+          </div>
+          <div className="sticky-note note-three">
+            <span>Better<br />Decisions</span>
+            <BarChart3 size={18} />
+          </div>
+          <div className="sticky-note note-four">
+            <span>More<br />Commissions</span>
+            <Sparkles size={18} />
+          </div>
+        </>
+      )}
 
-      <div className="video-card">
-        <div className="video-doodles">
-          <span className="dash dash-a" />
-          <span className="dash dash-b" />
-          <span className="dash dash-c" />
-        </div>
-        <p className="video-title">See Enerflo.ai<br />in action</p>
-        <button className="play-button" aria-label="Play feature video">
-          <Play fill="currentColor" size={34} />
-        </button>
-        <div className="video-icons">
-          <span><UsersRound size={24} /> Customers</span>
-          <span><FileText size={24} /> Quotes</span>
-          <span><CalendarCheck size={24} /> Renewals</span>
-          <span><Coins size={24} /> Commission</span>
-        </div>
+      <div className={`video-card${showVideo ? ' video-card--playing' : ''}`}>
+        {!showVideo ? (
+          <>
+            <div className="video-doodles">
+              <span className="dash dash-a" />
+              <span className="dash dash-b" />
+              <span className="dash dash-c" />
+            </div>
+            <div className="video-title-row">
+              <div className="video-title-brand">
+                <Image src="/enerflo-ai-icon.png" alt="" width={44} height={44} />
+                <span className="video-title-name">
+                  <span className="brand-name">enerflo.</span>
+                  <span className="brand-ai">ai</span>
+                </span>
+              </div>
+              <p className="video-title">One platform.<br />Zero chaos.</p>
+            </div>
+            <button className="play-button" aria-label="Play feature video" onClick={() => setShowVideo(true)}>
+              <Play fill="currentColor" size={34} />
+            </button>
+            <p className="play-hint"><Rocket size={16} /> Watch how it works</p>
+            <div className="video-icons">
+              <span><UsersRound size={24} /> Customers</span>
+              <span><FileText size={24} /> Quotes</span>
+              <span><CalendarCheck size={24} /> Renewals</span>
+              <span><Coins size={24} /> Commission</span>
+            </div>
+          </>
+        ) : (
+          <>
+            <button className="video-close-btn" onClick={() => setShowVideo(false)} aria-label="Close video">
+              <X size={20} />
+            </button>
+            <video autoPlay controls className="video-inline-player">
+              <source src="/enerflo-ai_promo.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </>
+        )}
       </div>
     </div>
   );
