@@ -473,7 +473,7 @@ function VideoCard() {
             <button className="video-close-btn" onClick={() => setShowVideo(false)} aria-label="Close video">
               <X size={20} />
             </button>
-            <video autoPlay controls className="video-inline-player">
+            <video autoPlay controls controlsList="nodownload" disablePictureInPicture onContextMenu={e => e.preventDefault()} className="video-inline-player">
               <source src="/enerflo-ai_promo.mp4" type="video/mp4" />
               Your browser does not support the video tag.
             </video>
