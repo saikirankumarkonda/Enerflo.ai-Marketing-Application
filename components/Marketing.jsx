@@ -333,7 +333,15 @@ function Logo({ footer = false }) {
     ? 'brand-logo brand-logo--small brand-logo--footer'
     : 'brand-logo brand-logo--small';
   return (
-    <Link className={className} href="/" aria-label="enerflo.ai home" onClick={() => window.dispatchEvent(new Event('enerflo:go-home'))}>
+    <Link
+      className={className}
+      href="/"
+      aria-label="enerflo.ai home"
+      onClick={() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.dispatchEvent(new Event('enerflo:go-home'));
+      }}
+    >
       <span className="brand-mark" aria-hidden="true">
         <Image
           src="/enerflo-ai-icon.png"
@@ -354,6 +362,21 @@ function Logo({ footer = false }) {
   );
 }
 
+function PromoRibbon() {
+  return (
+    <div className="promo-ribbon" aria-label="Promotional offer">
+      <div className="promo-ribbon-track">
+        <span className="promo-ribbon-text">
+          🎉 Early-bird offer — Our founding customers get up to <strong>20% off</strong> all plans. Limited spots available!
+        </span>
+        <span className="promo-ribbon-text" aria-hidden="true">
+          🎉 Early-bird offer — Our founding customers get up to <strong>20% off</strong> all plans. Limited spots available!
+        </span>
+      </div>
+    </div>
+  );
+}
+
 function Header() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -361,6 +384,7 @@ function Header() {
 
   return (
     <header className="site-header">
+      <PromoRibbon />
       <div className="container nav-shell">
         <Logo />
         <button
@@ -955,7 +979,8 @@ function DemoForm() {
     business: '',
     email: '',
     users: '',
-    challenge: ''
+    challenge: '',
+    challengeDetails: ''
   });
   const [company, setCompany] = useState(''); // honeypot, never shown to humans
   const [status, setStatus] = useState('idle'); // 'idle' | 'submitting' | 'success' | 'error'
@@ -994,7 +1019,7 @@ function DemoForm() {
   };
 
   const reset = () => {
-    setValues({ name: '', business: '', email: '', users: '', challenge: '' });
+    setValues({ name: '', business: '', email: '', users: '', challenge: '', challengeDetails: '' });
     setCompany('');
     setErrorMessage('');
     setStatus('idle');
@@ -1114,6 +1139,17 @@ function DemoForm() {
           <option>Commissions</option>
           <option>Spreadsheets</option>
         </select>
+      </label>
+      <label htmlFor="demo-challenge-details">
+        Describe your challenge
+        <textarea
+          id="demo-challenge-details"
+          name="challengeDetails"
+          rows={4}
+          value={values.challengeDetails}
+          onChange={update('challengeDetails')}
+          placeholder="Tell us more about the problem you're facing and what solution you're looking for…"
+        />
       </label>
       {status === 'error' && errorMessage && (
         <p className="form-note" role="alert" style={{ color: '#b91c1c' }}>

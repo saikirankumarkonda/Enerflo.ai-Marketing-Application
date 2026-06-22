@@ -40,6 +40,7 @@ export async function POST(request) {
   const email = clean(payload?.email);
   const users = clean(payload?.users);
   const challenge = clean(payload?.challenge);
+  const challengeDetails = clean(payload?.challengeDetails);
   const honeypot = clean(payload?.company); // simple bot trap; field not rendered
 
   if (honeypot) {
@@ -72,7 +73,8 @@ export async function POST(request) {
     business: escapeHtml(business),
     email: escapeHtml(email),
     users: escapeHtml(users),
-    challenge: escapeHtml(challenge)
+    challenge: escapeHtml(challenge),
+    challengeDetails: escapeHtml(challengeDetails)
   };
 
   const notificationSubject = `Demo request: ${name} (${business})`;
@@ -83,7 +85,8 @@ export async function POST(request) {
     `Brokerage:      ${business}`,
     `Email:          ${email}`,
     `Team size:      ${users}`,
-    `Main challenge: ${challenge}`
+    `Main challenge: ${challenge}`,
+    `Details:        ${challengeDetails || '(not provided)'}`
   ].join('\n');
 
   const notificationHtml = `
@@ -96,6 +99,7 @@ export async function POST(request) {
         <tr><td style="background:#f8fafc;font-weight:600;">Email</td><td><a href="mailto:${safe.email}">${safe.email}</a></td></tr>
         <tr><td style="background:#f8fafc;font-weight:600;">Team size</td><td>${safe.users}</td></tr>
         <tr><td style="background:#f8fafc;font-weight:600;">Main challenge</td><td>${safe.challenge}</td></tr>
+        <tr><td style="background:#f8fafc;font-weight:600;">Details</td><td>${safe.challengeDetails || '<em>Not provided</em>'}</td></tr>
       </table>
       <p style="margin:16px 0 0;color:#64748b;font-size:13px;">Reply directly to this email to respond to the prospect.</p>
     </div>
@@ -114,6 +118,7 @@ export async function POST(request) {
     `  Brokerage:      ${business}`,
     `  Team size:      ${users}`,
     `  Main challenge: ${challenge}`,
+    `  Details:        ${challengeDetails || '(not provided)'}`,
     ``,
     `If anything has changed in the meantime, just reply to this email.`,
     ``,
@@ -132,6 +137,7 @@ export async function POST(request) {
         <tr><td style="background:#f8fafc;font-weight:600;">Brokerage</td><td>${safe.business}</td></tr>
         <tr><td style="background:#f8fafc;font-weight:600;">Team size</td><td>${safe.users}</td></tr>
         <tr><td style="background:#f8fafc;font-weight:600;">Main challenge</td><td>${safe.challenge}</td></tr>
+        <tr><td style="background:#f8fafc;font-weight:600;">Details</td><td>${safe.challengeDetails || '<em>Not provided</em>'}</td></tr>
       </table>
       <p style="margin-top:24px;">If anything has changed in the meantime, just reply to this email.</p>
       <p style="margin-top:24px;">Speak soon,<br/>The Enerflo.ai team<br/><a href="https://enerflo-ai.co.uk">enerflo-ai.co.uk</a></p>
